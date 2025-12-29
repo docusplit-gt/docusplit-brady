@@ -14,7 +14,6 @@ export default defineConfig(({ mode }) => {
       sourcemap: false
     },
     define: {
-      // Reemplazo global de process.env.API_KEY durante el build
       'process.env.API_KEY': JSON.stringify(env.VITE_API_KEY || env.API_KEY || "")
     }
   };
