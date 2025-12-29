@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Module, Settings } from './types.ts';
-import Navigation from './components/Navigation.tsx';
-import SplitModule from './components/SplitModule.tsx';
-import ReconcileModule from './components/ReconcileModule.tsx';
-import SettingsModule from './components/SettingsModule.tsx';
-import { Layout, Lock, Key, ExternalLink, ChevronRight, Loader2 } from 'lucide-react';
+import { Module, Settings } from './types';
+import Navigation from './components/Navigation';
+import SplitModule from './components/SplitModule';
+import ReconcileModule from './components/ReconcileModule';
+import SettingsModule from './components/SettingsModule';
+import { Layout, Loader2 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentModule, setCurrentModule] = useState<Module>(Module.SPLIT);
@@ -17,26 +17,22 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const checkApiKey = async () => {
-      // 1. Verificación vía Variable de Entorno inyectada por Vite
       try {
         const envKey = process.env.API_KEY;
         if (envKey && envKey.length > 5) {
-          console.log("App: Acceso autorizado vía Variable de Entorno.");
           setIsKeySelected(true);
           return;
         }
       } catch (e) {
-        console.warn("App: process.env.API_KEY no detectado.");
+        console.warn("App: API_KEY no detectado en process.env");
       }
 
-      // 2. Fallback para entorno de AI Studio
       // @ts-ignore
       if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
         // @ts-ignore
         const hasKey = await window.aistudio.hasSelectedApiKey();
         setIsKeySelected(hasKey);
       } else {
-        // En desarrollo local o si no hay AI Studio, permitimos el paso para que el usuario configure
         setIsKeySelected(true);
       }
     };
@@ -99,7 +95,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="p-6 text-center text-slate-500 text-xs mt-auto border-t border-white/5">
-        <div>&copy; {new Date().getFullYear()} Brady Audit Suite. Versión Pro con Gemini 3.</div>
+        <div>&copy; {new Date().getFullYear()} Brady Audit Suite. Versión Pro.</div>
       </footer>
     </div>
   );

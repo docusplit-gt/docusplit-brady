@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { InvoiceMetadata } from "../types.ts";
+import { InvoiceMetadata } from "../types";
 
 const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -8,9 +8,7 @@ export const analyzeInvoicePage = async (
   retries = 3, 
   onRetry?: (attempt: number) => void
 ): Promise<InvoiceMetadata> => {
-  // Obtenemos la clave de process.env.API_KEY (Vite la inyectará en el build)
   const apiKey = process.env.API_KEY || "";
-
   const ai = new GoogleGenAI({ apiKey });
   
   for (let attempt = 0; attempt < retries; attempt++) {

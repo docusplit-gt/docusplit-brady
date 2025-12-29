@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FileSearch, FileSpreadsheet, FileText, Loader2, CheckCircle } from 'lucide-react';
 import { renderPageToImage } from '../services/pdfService';

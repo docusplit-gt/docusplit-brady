@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Upload, FileText, Cloud, Loader2, AlertCircle, Scissors, Download, Archive, Clock } from 'lucide-react';
-import { analyzeInvoicePage } from '../services/gemini.ts';
-import { renderPageToImage, splitPdfIntoGroups } from '../services/pdfService.ts';
-import { initDriveAuth, uploadToDrive, findFolderByName, createFolder } from '../services/driveService.ts';
-import { Settings } from '../types.ts';
+import { analyzeInvoicePage } from '../services/gemini';
+import { renderPageToImage, splitPdfIntoGroups } from '../services/pdfService';
+import { initDriveAuth, uploadToDrive, findFolderByName, createFolder } from '../services/driveService';
+import { Settings } from '../types';
 
 // @ts-ignore
 const pdfjsLib = window.pdfjsLib;
@@ -55,7 +55,6 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
         setStatus(`Analizando página ${i} de ${totalPages}...`);
         const img = await renderPageToImage(pdf, i);
         
-        // Llamada con gestión de reintentos
         const metadata = await analyzeInvoicePage(img, 3, (attempt) => {
           setStatus(`Cuota agotada. Reintento ${attempt} para pág. ${i}...`);
         });
@@ -75,7 +74,6 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
         
         setProgress(Math.round((i / totalPages) * 100));
         
-        // Pequeño delay preventivo para no saturar la cuota RPM
         if (i < totalPages) {
           await new Promise(resolve => setTimeout(resolve, 800));
         }
