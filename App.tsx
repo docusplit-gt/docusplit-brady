@@ -17,24 +17,25 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const checkApiKey = async () => {
-      // 1. Verificación en el entorno de Vite (Coolify/VPS)
-      // Usamos import.meta.env que es el estándar de Vite para el navegador
-      const vpsKey = import.meta.env.VITE_API_KEY;
-      
-      if (vpsKey && vpsKey.length > 10) {
-        console.log("API Key detectada desde entorno VPS");
-        setIsKeySelected(true);
-        return;
+      // 1. Verificación vía Environment Variable (Inyectada por Vite desde VITE_API_KEY)
+      try {
+        const envKey = process.env.API_KEY;
+        if (envKey && envKey.length > 10) {
+          setIsKeySelected(true);
+          return;
+        }
+      } catch (e) {
+        console.warn("process.env.API_KEY no disponible, intentando AI Studio...");
       }
 
-      // 2. Fallback para entorno de desarrollo local o AI Studio
+      // 2. Fallback para AI Studio
       // @ts-ignore
       if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
         // @ts-ignore
         const hasKey = await window.aistudio.hasSelectedApiKey();
         setIsKeySelected(hasKey);
       } else {
-        // Por defecto permitimos el paso, el servicio de Gemini manejará el error si no hay key
+        // En desarrollo o sin llave seleccionada, permitimos que la app cargue
         setIsKeySelected(true);
       }
     };
