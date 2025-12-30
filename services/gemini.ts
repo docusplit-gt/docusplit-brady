@@ -15,7 +15,7 @@ export const analyzeInvoicePage = async (
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-3-flash-preview',
         contents: {
           parts: [
             {
@@ -46,7 +46,8 @@ export const analyzeInvoicePage = async (
             },
             propertyOrdering: ["invoiceNo", "shipTo"],
           },
-          thinkingConfig: { thinkingBudget: 4000 },
+          // Reduced budget for Flash model as it is highly efficient for structured extraction.
+          thinkingConfig: { thinkingBudget: 1000 },
         },
       });
 
@@ -64,7 +65,7 @@ export const analyzeInvoicePage = async (
         continue;
       }
       
-      console.error("Gemini Pro Analysis Error:", e);
+      console.error("Gemini Flash Analysis Error:", e);
       return { invoiceNo: null, shipTo: null };
     }
   }
