@@ -10,6 +10,7 @@ import { Layout, Loader2 } from 'lucide-react';
 const App: React.FC = () => {
   const [currentModule, setCurrentModule] = useState<Module>(Module.SPLIT);
   const [isKeySelected, setIsKeySelected] = useState<boolean | null>(null);
+  const [resetKey, setResetKey] = useState(0);
   
   // Priorizar variables de entorno (VPS) -> LocalStorage -> Vacío
   const [settings, setSettings] = useState<Settings>({
@@ -50,6 +51,13 @@ const App: React.FC = () => {
     }
   };
 
+  const handleReset = () => {
+    if (confirm("¿Estás seguro de que quieres empezar un nuevo proceso? Se perderán los resultados actuales.")) {
+      setResetKey(prev => prev + 1);
+      setCurrentModule(Module.SPLIT);
+    }
+  };
+
   const saveSettings = (newSettings: Settings) => {
     setSettings(newSettings);
     localStorage.setItem('driveClientId', newSettings.driveClientId);
@@ -67,13 +75,14 @@ const App: React.FC = () => {
   const renderModule = () => {
     switch (currentModule) {
       case Module.SPLIT:
-        return <SplitModule settings={settings} />;
+        return <SplitModule key={`split-${resetKey}`} settings={settings} />;
       case Module.RECONCILE:
-        return <ReconcileModule />;
+        return <ReconcileModule key={`reconcile-${resetKey}`} />;
       case Module.SETTINGS:
+        // Mantener accesible solo por lógica interna si fuera necesario
         return <SettingsModule settings={settings} onSave={saveSettings} onKeyChange={handleSelectKey} />;
       default:
-        return <SplitModule settings={settings} />;
+        return <SplitModule key={`split-${resetKey}`} settings={settings} />;
     }
   };
 
@@ -84,12 +93,16 @@ const App: React.FC = () => {
           <div className="p-2 bg-[#f84827] rounded-lg shadow-[0_0_15px_rgba(248,72,39,0.5)]">
             <Layout className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-white">
+          <h1 className="text-xl font-bold tracking-tight text-white hidden md:block">
             BRADY <span className="text-[#f84827]">AUDIT</span>
             <span className="ml-2 px-1.5 py-0.5 bg-white/10 rounded text-[10px] uppercase tracking-tighter border border-white/10">Pro</span>
           </h1>
         </div>
-        <Navigation currentModule={currentModule} setModule={setCurrentModule} />
+        <Navigation 
+          currentModule={currentModule} 
+          setModule={setCurrentModule} 
+          onReset={handleReset}
+        />
       </header>
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
@@ -97,7 +110,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="p-6 text-center text-slate-500 text-xs mt-auto border-t border-white/5">
-        <div>&copy; {new Date().getFullYear()} Brady Audit Suite. Versión Pro.</div>
+        <div>&copy; {new Date().getFullYear()} Brady Audit Suite. Gestión Logística Automatizada.</div>
       </footer>
     </div>
   );

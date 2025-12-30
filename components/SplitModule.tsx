@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Upload, FileText, Cloud, Loader2, AlertCircle, Scissors, Download, Archive, Clock } from 'lucide-react';
+import { Upload, FileText, Cloud, Loader2, AlertCircle, Scissors, Download, Archive, Clock, ShieldCheck } from 'lucide-react';
 import { analyzeInvoicePage } from '../services/gemini';
 import { renderPageToImage, splitPdfIntoGroups } from '../services/pdfService';
 import { initDriveAuth, uploadToDrive, findFolderByName, createFolder } from '../services/driveService';
@@ -121,7 +122,7 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
   };
 
   const uploadToGoogleDrive = async () => {
-    if (!settings.driveClientId) return alert("Error: No has configurado el Client ID en Settings.");
+    if (!settings.driveClientId) return alert("Error de configuración: Drive Client ID no encontrado.");
     
     try {
       setStatus('Solicitando acceso a Google Drive...');
@@ -162,6 +163,14 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
 
   return (
     <div className="space-y-6">
+      {/* Indicador de configuración activa de Coolify */}
+      {settings.driveClientId && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full w-fit mx-auto md:mx-0">
+          <ShieldCheck className="w-3 h-3 text-green-400" />
+          <span className="text-[10px] font-bold text-green-400 uppercase tracking-widest">Configuración Activa (Coolify)</span>
+        </div>
+      )}
+
       <section className="glass p-8 rounded-2xl border border-white/10">
         <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-white">
           <Upload className="text-[#f84827]" />
@@ -200,7 +209,7 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
       </section>
 
       {resultFiles.length > 0 && !isProcessing && (
-        <section className="glass p-8 rounded-2xl border border-white/10 animate-in fade-in">
+        <section className="glass p-8 rounded-2xl border border-white/10 animate-in fade-in slide-in-from-bottom-4">
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
             <div>
               <h3 className="text-xl font-bold">Audit List</h3>
