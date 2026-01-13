@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Upload, FileText, Cloud, Loader2, AlertCircle, Scissors, Download, Archive, Clock, ShieldCheck } from 'lucide-react';
+import { Upload, FileText, Cloud, Loader2, AlertCircle, Scissors, Download, Archive, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { analyzeInvoicePage } from '../services/gemini';
 import { renderPageToImage, splitPdfIntoGroups } from '../services/pdfService';
 import { initDriveAuth, uploadToDrive, findFolderByName, createFolder } from '../services/driveService';
@@ -28,6 +28,7 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('');
   const [resultFiles, setResultFiles] = useState<ResultFile[]>([]);
+  const [isUploaded, setIsUploaded] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -43,6 +44,7 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
     setProgress(0);
     setStatus('Starting scan...');
     setResultFiles([]);
+    setIsUploaded(false);
     
     try {
       const arrayBuffer = await file.arrayBuffer();
@@ -123,7 +125,8 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
 
   const uploadToGoogleDrive = async () => {
     if (!settings.driveClientId) return alert("Configuration error: Drive Client ID not found.");
-    
+    if (isUploaded) return;
+
     try {
       setStatus('Requesting Google Drive access...');
       const token = await initDriveAuth(settings.driveClientId);
@@ -153,6 +156,7 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
         });
       }
       setStatus('Success! Drive updated.');
+      setIsUploaded(true);
     } catch (err: any) {
       console.error(err);
       setStatus(`Upload error: ${err.message}`);
@@ -209,6 +213,13 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
 
       {resultFiles.length > 0 && !isProcessing && (
         <section className="glass p-8 rounded-2xl border border-white/10 animate-in fade-in slide-in-from-bottom-4">
+          {isUploaded && (
+            <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-3 text-green-400 animate-in zoom-in-95 duration-300">
+              <CheckCircle2 className="w-5 h-5" />
+              <div className="text-sm font-medium">Files successfully synchronized with Google Drive folders.</div>
+            </div>
+          )}
+          
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
             <div>
               <h3 className="text-xl font-bold">Audit List</h3>
@@ -224,10 +235,15 @@ const SplitModule: React.FC<SplitModuleProps> = ({ settings }) => {
               </button>
               <button 
                 onClick={uploadToGoogleDrive}
-                className="flex items-center gap-2 px-8 py-3 bg-[#f84827] rounded-lg font-bold hover:scale-105 transition-all shadow-lg shadow-[#f84827]/20"
+                disabled={isUploaded}
+                className={`flex items-center gap-2 px-8 py-3 rounded-lg font-bold transition-all shadow-lg ${
+                  isUploaded 
+                    ? 'bg-green-600 cursor-default opacity-90' 
+                    : 'bg-[#f84827] hover:scale-105 shadow-[#f84827]/20 active:scale-95'
+                }`}
               >
-                <Cloud className="w-4 h-4" />
-                Upload to Drive
+                {isUploaded ? <ShieldCheck className="w-4 h-4" /> : <Cloud className="w-4 h-4" />}
+                {isUploaded ? 'Saved to Drive' : 'Upload to Drive'}
               </button>
             </div>
           </div>
